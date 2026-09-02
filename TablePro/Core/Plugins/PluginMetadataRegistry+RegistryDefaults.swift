@@ -512,6 +512,18 @@ extension PluginMetadataRegistry {
                             placeholder: "Optional (e.g. America/New_York)",
                             section: .advanced
                         ),
+                        ConnectionField(
+                            id: "trinoExtraCredentials",
+                            label: String(localized: "Extra Credentials"),
+                            placeholder: "key=value, comma-separated",
+                            section: .advanced
+                        ),
+                        ConnectionField(
+                            id: "trinoClientTags",
+                            label: String(localized: "Client Tags"),
+                            placeholder: "team=analytics, comma-separated",
+                            section: .advanced
+                        ),
                     ],
                     category: .analytical,
                     tagline: String(localized: "Distributed SQL query engine for data lakes")

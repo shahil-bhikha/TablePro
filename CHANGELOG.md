@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Trino connections can set extra credentials and client tags from the Advanced tab, sent as request headers so gateways that route or authorize on them work.
 
 - Value picker on a foreign key cell, listing rows from the referenced table with a label beside the key. (#2511)
 - Breakdown of a query's time into server, first row and transfer, behind the toolbar's duration readout. (#2503)
@@ -1094,6 +1095,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - AI Chat renders Markdown while the assistant reply streams, including open code blocks, instead of waiting for the reply to finish.
+- Trino connections no longer send a periodic `SELECT 1` health check. Trino runs over stateless HTTP with no connection to keep alive, so the probe added query load without benefit.
 
 ## [0.58.0] - 2026-07-18
 

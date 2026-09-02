@@ -61,9 +61,7 @@ final class TrinoPluginDriver: PluginDatabaseDriver, @unchecked Sendable {
         lock.withLock { _client = nil }
     }
 
-    func ping() async throws {
-        _ = try await execute(query: "SELECT 1")
-    }
+    func ping() async throws {}
 
     func cancelQuery() throws {
         client?.cancel()
@@ -173,7 +171,7 @@ final class TrinoPluginDriver: PluginDatabaseDriver, @unchecked Sendable {
     private static func makeClientConfig(_ config: DriverConnectionConfig) -> TrinoClientConfig {
         let useTLS = config.ssl.isEnabled
         let port = config.port > 0 ? config.port : (useTLS ? 8_443 : 8_080)
-        return TrinoClientConfig(
+        var clientConfig = TrinoClientConfig(
             host: config.host.isEmpty ? "localhost" : config.host,
             port: port,
             useTLS: useTLS,
@@ -184,6 +182,17 @@ final class TrinoPluginDriver: PluginDatabaseDriver, @unchecked Sendable {
             timeZone: trimmedField(config.additionalFields["trinoTimeZone"]),
             auth: resolveAuth(config)
         )
+        clientConfig.extraCredentials = splitFields(config.additionalFields["trinoExtraCredentials"])
+        clientConfig.clientTags = splitFields(config.additionalFields["trinoClientTags"])
+        return clientConfig
+    }
+
+    private static func splitFields(_ value: String?) -> [String] {
+        guard let value else { return [] }
+        return value
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
     }
 
     private static func resolveAuth(_ config: DriverConnectionConfig) -> TrinoAuth {

@@ -274,6 +274,9 @@ public final class TrinoStatementClient: @unchecked Sendable {
         if !config.clientTags.isEmpty {
             headers[protocolHeaders.clientTags] = config.clientTags.joined(separator: ",")
         }
+        if !config.extraCredentials.isEmpty {
+            headers[protocolHeaders.extraCredential] = config.extraCredentials.joined(separator: ",")
+        }
         headers[protocolHeaders.clientCapabilities] = "PARAMETRIC_DATETIME"
         headers["Content-Type"] = "text/plain; charset=utf-8"
         if let authorization = config.authorizationHeader {

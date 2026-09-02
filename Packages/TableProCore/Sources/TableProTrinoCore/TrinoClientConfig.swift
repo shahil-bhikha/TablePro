@@ -46,6 +46,7 @@ public struct TrinoClientConfig: Sendable {
     public var timeZone: String?
     public var auth: TrinoAuth
     public var clientTags: [String]
+    public var extraCredentials: [String] = []
     public var protocolHeaders: TrinoProtocolHeaders
     public var requestTimeoutSeconds: Int
 

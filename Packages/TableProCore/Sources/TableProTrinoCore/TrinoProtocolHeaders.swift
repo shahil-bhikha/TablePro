@@ -21,6 +21,7 @@ public struct TrinoProtocolHeaders: Sendable, Equatable {
     public var transactionId: String { prefix + "Transaction-Id" }
     public var clientInfo: String { prefix + "Client-Info" }
     public var clientTags: String { prefix + "Client-Tags" }
+    public var extraCredential: String { prefix + "Extra-Credential" }
     public var clientCapabilities: String { prefix + "Client-Capabilities" }
 
     public var setCatalog: String { prefix + "Set-Catalog" }

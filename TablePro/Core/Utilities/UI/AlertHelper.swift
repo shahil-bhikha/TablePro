@@ -257,6 +257,8 @@ final class AlertHelper {
 
     // MARK: - Error / Info Sheets
 
+    private static let inlineMessageLimit = 400
+
     static func showErrorSheet(
         title: String,
         message: String,
@@ -265,12 +267,38 @@ final class AlertHelper {
     ) {
         let alert = NSAlert()
         alert.messageText = title
-        alert.informativeText = [message, recoverySuggestion]
-            .compactMap { $0 }
-            .joined(separator: "\n\n")
         alert.alertStyle = .critical
         alert.addButton(withTitle: String(localized: "OK"))
+
+        let combinedMessage = [message, recoverySuggestion]
+            .compactMap { $0 }
+            .joined(separator: "\n\n")
+
+        if combinedMessage.count > inlineMessageLimit {
+            alert.accessoryView = scrollableMessageView(combinedMessage)
+        } else {
+            alert.informativeText = combinedMessage
+        }
+
         present(alert, in: window)
+    }
+
+    private static func scrollableMessageView(_ message: String) -> NSScrollView {
+        let scrollView = NSScrollView(frame: NSRect(x: 0, y: 0, width: 420, height: 200))
+        scrollView.hasVerticalScroller = true
+        scrollView.borderType = .bezelBorder
+        scrollView.autohidesScrollers = true
+
+        let textView = NSTextView(frame: scrollView.bounds)
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.drawsBackground = false
+        textView.textContainerInset = NSSize(width: 4, height: 4)
+        textView.string = message
+        textView.font = .monospacedSystemFont(ofSize: NSFont.smallSystemFontSize, weight: .regular)
+
+        scrollView.documentView = textView
+        return scrollView
     }
 
     static func showInfoSheet(

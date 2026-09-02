@@ -43,6 +43,30 @@ final class TrinoStatementClientTests: XCTestCase {
         XCTAssertEqual(post.body, Data("SELECT 1".utf8))
     }
 
+    func testInitialPostCarriesExtraCredentialsAndClientTags() async throws {
+        var config = TrinoClientConfig(host: "h", port: 8_080, user: "u")
+        config.extraCredentials = ["first=abc", "other=xyz"]
+        config.clientTags = ["team=analytics"]
+        let transport = StubTransport([canned(#"{"id":"q1"}"#)])
+        let client = TrinoStatementClient(transport: transport, config: config, session: TrinoSessionState(catalog: "c", schema: "s"))
+
+        _ = try await client.execute("SELECT 1")
+
+        let post = try XCTUnwrap(transport.requests.first)
+        XCTAssertEqual(post.headers["X-Trino-Extra-Credential"], "first=abc,other=xyz")
+        XCTAssertEqual(post.headers["X-Trino-Client-Tags"], "team=analytics")
+    }
+
+    func testInitialPostOmitsExtraCredentialHeaderWhenEmpty() async throws {
+        let transport = StubTransport([canned(#"{"id":"q1"}"#)])
+        let client = makeClient(transport)
+
+        _ = try await client.execute("SELECT 1")
+
+        let post = try XCTUnwrap(transport.requests.first)
+        XCTAssertNil(post.headers["X-Trino-Extra-Credential"])
+    }
+
     func testThrowsOnQueryError() async throws {
         let transport = StubTransport([
             canned(#"{"id":"q1","error":{"message":"Table not found","errorName":"TABLE_NOT_FOUND","errorType":"USER_ERROR","errorCode":46}}"#)
